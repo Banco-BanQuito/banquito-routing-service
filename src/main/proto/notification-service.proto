@@ -1,0 +1,22 @@
+syntax = "proto3";
+package com.banquito.switch.notification;
+option java_package = "com.banquito.payswitch.notification";
+option java_multiple_files = true;
+option java_outer_classname = "NotificationServiceProto";
+
+service NotificationService {
+    rpc SendNotification (NotificationRequest) returns (NotificationResponse);
+}
+
+message NotificationRequest {
+    int32 payment_detail_id = 1;
+    string email_to = 2;
+    string subject = 3;
+    string body_template = 4;
+    map<string, string> variables = 5;
+}
+
+message NotificationResponse {
+    string notification_id = 1;
+    string status = 2;
+}

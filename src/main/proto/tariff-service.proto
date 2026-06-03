@@ -1,0 +1,24 @@
+syntax = "proto3";
+package com.banquito.switch.tariff;
+option java_package = "com.banquito.payswitch.tariff";
+option java_multiple_files = true;
+option java_outer_classname = "TariffServiceProto";
+
+service TariffService {
+    rpc CalculateTariff (TariffRequest) returns (TariffResponse);
+}
+
+message TariffRequest {
+    int32 successful_tx = 1;
+    string batch_id = 2;
+}
+
+message TariffResponse {
+    int32 successful_tx = 1;
+    double unit_fee = 2;
+    double commission_subtotal = 3;
+    double iva_rate = 4;
+    double iva_amount = 5;
+    double total_charge = 6;
+    string tariff_range_applied = 7;
+}
