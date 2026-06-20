@@ -1,5 +1,8 @@
 package ec.edu.espe.banquito.routingservice.config;
 
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -24,6 +27,30 @@ public class RabbitMQConfig {
     public Queue clearingOutboundQueue(
             @Value("${app.rabbitmq.clearing-queue:clearing.outbound.queue}") String name) {
         return QueueBuilder.durable(name).build();
+    }
+
+    @Bean
+    public DirectExchange paymentExchange(
+            @Value("${app.rabbitmq.payment-exchange:payment.exchange}") String name) {
+        return new DirectExchange(name, true, false);
+    }
+
+    @Bean
+    public DirectExchange clearingExchange(
+            @Value("${app.rabbitmq.clearing-exchange:clearing.exchange}") String name) {
+        return new DirectExchange(name, true, false);
+    }
+
+    @Bean
+    public Binding paymentLinesBinding(Queue paymentLinesQueue, DirectExchange paymentExchange,
+            @Value("${app.rabbitmq.payment-routing-key:payment.lines}") String routingKey) {
+        return BindingBuilder.bind(paymentLinesQueue).to(paymentExchange).with(routingKey);
+    }
+
+    @Bean
+    public Binding clearingOutboundBinding(Queue clearingOutboundQueue, DirectExchange clearingExchange,
+            @Value("${app.rabbitmq.clearing-routing-key:clearing.outbound}") String routingKey) {
+        return BindingBuilder.bind(clearingOutboundQueue).to(clearingExchange).with(routingKey);
     }
 
     @Bean

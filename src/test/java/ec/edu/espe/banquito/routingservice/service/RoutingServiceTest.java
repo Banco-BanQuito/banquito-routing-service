@@ -65,7 +65,8 @@ class RoutingServiceTest {
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(routingService, "clearingQueue", "clearing.outbound.queue");
+        ReflectionTestUtils.setField(routingService, "clearingExchange", "clearing.exchange");
+        ReflectionTestUtils.setField(routingService, "clearingRoutingKey", "clearing.outbound");
         ReflectionTestUtils.setField(routingService, "fallbackCorporateAccount", "0000000000");
         ReflectionTestUtils.setField(routingService, "localCompletionEnabled", false);
 
@@ -103,7 +104,7 @@ class RoutingServiceTest {
 
         // RF-03: flujo Off-Us adapta el registro y lo publica en la Cola de Salida
         ArgumentCaptor<OffUsClearingMessage> clearingCaptor = ArgumentCaptor.forClass(OffUsClearingMessage.class);
-        verify(rabbitTemplate).convertAndSend(eq("clearing.outbound.queue"), clearingCaptor.capture());
+        verify(rabbitTemplate).convertAndSend(eq("clearing.exchange"), eq("clearing.outbound"), clearingCaptor.capture());
 
         OffUsClearingMessage adapted = clearingCaptor.getValue();
         assertThat(adapted.getBatchId().toString()).isEqualTo(BATCH_1);
@@ -178,7 +179,7 @@ class RoutingServiceTest {
             routingService.processPaymentLine(message);
         }
         verify(rabbitTemplate, times(offusCodes.length))
-                .convertAndSend(eq("clearing.outbound.queue"), any(OffUsClearingMessage.class));
+                .convertAndSend(eq("clearing.exchange"), eq("clearing.outbound"), any(OffUsClearingMessage.class));
     }
 
     private PaymentLineMessage buildMessage(String batchId, int lineNumber,

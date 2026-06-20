@@ -46,8 +46,11 @@ public class RoutingService {
     private final NotificationGrpcClient notificationClient;
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${app.rabbitmq.clearing-queue:clearing.outbound.queue}")
-    private String clearingQueue;
+    @Value("${app.rabbitmq.clearing-exchange:clearing.exchange}")
+    private String clearingExchange;
+
+    @Value("${app.rabbitmq.clearing-routing-key:clearing.outbound}")
+    private String clearingRoutingKey;
 
     @Value("${account.core.corporate.account-number:0000000000}")
     private String fallbackCorporateAccount;
@@ -119,7 +122,7 @@ public class RoutingService {
             case "OFFUS" -> {
                 try {
                     OffUsClearingMessage clearingMessage = adaptForClearingHouse(message);
-                    rabbitTemplate.convertAndSend(clearingQueue, clearingMessage);
+                    rabbitTemplate.convertAndSend(clearingExchange, clearingRoutingKey, clearingMessage);
                     success = true;
                 } catch (Exception e) {
                     log.error("Off-Us routing error batchId={} line={}: {}", message.getBatchId(), message.getLineNumber(), e.getMessage());
